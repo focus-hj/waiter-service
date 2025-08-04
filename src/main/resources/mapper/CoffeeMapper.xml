@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ch.coffee.waiter.mapper.CoffeeMapper">  <!-- 替换为实际包路径 -->
+
+    <!-- 基础结果映射（继承BaseEntity中的id字段） -->
+    <resultMap id="BaseResultMap" type="com.ch.coffee.waiter.model.Coffee">  <!-- 替换实体类路径 -->
+        <id column="id" property="id" />              <!-- 继承自BaseEntity -->
+        <result column="name" property="name" />       <!-- 映射name字段 -->
+        <result column="price" property="price" />      <!-- 映射price字段 -->
+        <result column="create_time" property="createTime" />     <!-- 映射price字段 -->
+        <result column="update_time" property="updateTime" />     <!-- 映射price字段 -->
+    </resultMap>
+
+    <!-- 可复用SQL列名集合 -->
+    <sql id="Base_Column_List">
+        id, name, price, create_time, update_time
+    </sql>
+
+    <!-- 1. 插入咖啡记录 -->
+    <insert id="saveCoffee" parameterType="com.ch.coffee.waiter.model.Coffee" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_coffee (name, price, create_time, update_time)
+        VALUES (#{name}, #{price}, #{createTime}, #{updateTime})
+    </insert>
+
+    <!-- 2. 根据ID查询咖啡 -->
+    <select id="getCoffeeById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM t_coffee
+        WHERE id = #{id}
+    </select>
+
+    <!-- 3. 查询所有咖啡（按ID排序） -->
+    <select id="getAllCoffees" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM t_coffee
+        ORDER BY id ASC
+    </select>
+
+    <!-- 4. 根据名称查询咖啡 -->
+    <select id="getCoffeeByName" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM t_coffee
+        WHERE name = #{name}
+        LIMIT 1  <!-- 防止重名，取第一条 -->
+    </select>
+
+    <!-- 5. 按指定名称列表查询并排序 -->
+    <select id="getCoffeesOrderById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM t_coffee
+        WHERE name IN  <!-- 匹配名称列表 -->
+        <foreach item="name" collection="names" open="(" separator="," close=")">
+            #{name}
+        </foreach>
+        ORDER BY id ASC
+    </select>
+
+    <!-- 6. 获取咖啡总记录数 -->
+    <select id="getCoffeeCount" resultType="long">
+        SELECT COUNT(*)
+        FROM t_coffee
+    </select>
+</mapper>

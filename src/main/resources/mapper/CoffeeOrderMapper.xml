@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ch.coffee.waiter.mapper.CoffeeOrderMapper">  <!-- 替换为实际包路径 -->
+
+    <!-- 主订单结果映射 -->
+    <resultMap id="OrderResultMap" type="com.ch.coffee.waiter.model.CoffeeOrder">  <!-- 替换实体路径 -->
+        <id column="order_id" property="id" />             <!-- 继承自BaseEntity的id -->
+        <result column="customer" property="customer" />
+        <result column="state" property="state" typeHandler="org.apache.ibatis.type.EnumTypeHandler" />
+        <result column="discount" property="discount" />
+        <result column="total" property="total" />
+        <result column="waiter" property="waiter" />
+        <result column="barista" property="barista" />
+
+        <!-- 一对多关联：订单项集合 -->
+        <collection property="items" ofType="com.ch.coffee.waiter.model.Coffee">  <!-- 替换Coffee实体路径 -->
+            <id column="item_id" property="id" />
+            <result column="coffee_name" property="name" />
+            <result column="price" property="price" />
+        </collection>
+    </resultMap>
+
+    <!-- 1. 按ID查询订单（含关联项） -->
+    <select id="findById" resultMap="OrderResultMap">
+        SELECT
+            o.id AS order_id, o.customer, o.state, o.discount, o.total, o.waiter, o.barista,
+            i.id AS item_id, c.name AS coffee_name, c.price
+        FROM t_order o
+                 LEFT JOIN order_item i ON o.id = i.order_id
+                 LEFT JOIN coffee c ON i.coffee_id = c.id
+        WHERE o.id = #{id}
+    </select>
+
+    <!-- 2. 查询所有订单（按ID倒序） -->
+    <select id="findAll" resultMap="OrderResultMap">
+        SELECT
+            o.id AS order_id, o.customer, o.state, o.discount, o.total, o.waiter, o.barista,
+            i.id AS item_id, c.name AS coffee_name, c.price
+        FROM t_order o
+                 LEFT JOIN order_item i ON o.id = i.order_id
+                 LEFT JOIN coffee c ON i.coffee_id = c.id
+        ORDER BY o.id DESC
+    </select>
+
+    <!-- 3. 插入订单（主表） -->
+    <insert id="save" parameterType="com.ch.coffee.waiter.model.CoffeeOrder"
+            useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO t_order (
+            customer, state, discount, total, waiter, barista
+        ) VALUES (
+                     #{customer},
+                     #{state, typeHandler=org.apache.ibatis.type.EnumTypeHandler},
+                     #{discount},
+                     #{total},
+                     #{waiter},
+                     #{barista}
+                 )
+    </insert>
+
+    <!-- 4. 更新订单 -->
+    <update id="update" parameterType="com.ch.coffee.waiter.model.CoffeeOrder">
+        UPDATE t_order
+        <set>
+            <if test="customer != null">customer = #{customer},</if>
+            <if test="state != null">state = #{state, typeHandler=org.apache.ibatis.type.EnumTypeHandler},</if>
+            <if test="discount != null">discount = #{discount},</if>
+            <if test="total != null">total = #{total},</if>
+            <if test="waiter != null">waiter = #{waiter},</if>
+            <if test="barista != null">barista = #{barista}</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 5. 删除订单 -->
+    <delete id="delete">
+        DELETE FROM t_order WHERE id = #{id}
+    </delete>
+
+<!--    &lt;!&ndash; 插入订单项（需在Service层与saveOrder组合调用） &ndash;&gt;-->
+<!--    <insert id="insertOrderItems">-->
+<!--        INSERT INTO order_item (order_id, coffee_id)-->
+<!--        VALUES-->
+<!--        <foreach collection="items" item="item" separator=",">-->
+<!--            (#{id}, #{item.id})  &lt;!&ndash; #{id}为订单ID, #{item.id}为咖啡ID &ndash;&gt;-->
+<!--        </foreach>-->
+<!--    </insert>-->
+</mapper>
