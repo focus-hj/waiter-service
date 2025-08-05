@@ -16,7 +16,12 @@ public class CoffeeOrderDao {
      }
 
      public CoffeeOrder save(CoffeeOrder order) {
-         return coffeeOrderMapper.save(order);
+         int i = coffeeOrderMapper.save(order);
+         if (i <= 0) {
+             throw new RuntimeException("Coffee Order save failed, order: " + order);
+         }
+
+         return order;
      }
 
      public void update(CoffeeOrder order) {

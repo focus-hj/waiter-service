@@ -10,7 +10,7 @@ import java.util.List;
 public interface CoffeeOrderMapper {
     CoffeeOrder findById(@Param("id") Long id);
     List<CoffeeOrder> findAll();
-    CoffeeOrder save(CoffeeOrder order);
+    int save(CoffeeOrder order);
     void update(CoffeeOrder order);
     void delete(@Param("id") Long id);
 }

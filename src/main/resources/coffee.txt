@@ -1,2 +1,6 @@
 Americano 25.0
 Italian 30.0
+Espresso 22.0
+Latte 28.0
+Cappuccino 35.0
+Mocha 40.0
