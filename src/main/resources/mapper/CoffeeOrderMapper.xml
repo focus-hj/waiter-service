@@ -12,6 +12,8 @@
         <result column="total" property="total" />
         <result column="waiter" property="waiter" />
         <result column="barista" property="barista" />
+        <result column="create_time" property="createTime" />     <!-- 映射create_time字段 -->
+        <result column="update_time" property="updateTime" />     <!-- 映射update_time字段 -->
 
         <!-- 一对多关联：订单项集合 -->
         <collection property="items" ofType="com.ch.coffee.waiter.model.Coffee">  <!-- 替换Coffee实体路径 -->
@@ -44,18 +46,28 @@
     </select>
 
     <!-- 3. 插入订单（主表） -->
-    <insert id="save" parameterType="com.ch.coffee.waiter.model.CoffeeOrder"
+    <insert id="insertOrder" parameterType="com.ch.coffee.waiter.model.CoffeeOrder"
             useGeneratedKeys="true" keyProperty="id" keyColumn="id">
         INSERT INTO t_order (
-            customer, state, discount, total, waiter, barista
+            customer, state, discount, total, waiter, barista, create_time, update_time
         ) VALUES (
                      #{customer},
-                     #{state, typeHandler=org.apache.ibatis.type.EnumTypeHandler},
+                     #{state, typeHandler=org.apache.ibatis.type.EnumOrdinalTypeHandler},
                      #{discount},
                      #{total},
                      #{waiter},
-                     #{barista}
+                     #{barista},
+                     #{createTime},
+                     #{updateTime}
                  )
+    </insert>
+
+    <insert id="insertOrderCoffee">
+        INSERT INTO t_order_coffee (coffee_order_id, items_id)
+        VALUES
+        <foreach collection="coffeeIds" item="coffeeId" separator=",">
+            (#{orderId}, #{coffeeId})
+        </foreach>
     </insert>
 
     <!-- 4. 更新订单 -->

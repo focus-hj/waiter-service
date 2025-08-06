@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
@@ -40,12 +41,16 @@ public class CoffeeOrderService implements MeterBinder {
     }
 
     public CoffeeOrder createOrder(String customer, Coffee...coffee) {
+        long currentTime = System.currentTimeMillis();
         CoffeeOrder order = CoffeeOrder.builder()
                 .customer(customer)
                 .items(Arrays.asList(coffee))
                 .discount(orderProperties.getDiscount())
+                .state(OrderState.INIT)
                 .total(calcTotal(coffee))
                 .waiter(orderProperties.getWaiterPrefix() + waiterId)
+                .createTime(new Date(currentTime))
+                .updateTime(new Date(currentTime))
                 .build();
         CoffeeOrder saved = coffeeOrderDao.save(order);
         log.info("New Order: {}", saved);
@@ -80,7 +85,7 @@ public class CoffeeOrderService implements MeterBinder {
 
     private Integer calcTotal(Coffee...coffee) {
         AtomicInteger total = new AtomicInteger();
-        Stream.of(coffee).forEach(c -> total.addAndGet(c.getPrice()));
+        Stream.of(coffee).forEach(c -> total.getAndAdd(c.getPrice()));
         return total.get() * orderProperties.getDiscount();
     }
 }

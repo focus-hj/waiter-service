@@ -1,10 +1,13 @@
 package com.ch.coffee.waiter.repository;
 
 import com.ch.coffee.waiter.mapper.CoffeeOrderMapper;
+import com.ch.coffee.waiter.model.Coffee;
 import com.ch.coffee.waiter.model.CoffeeOrder;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 public class CoffeeOrderDao {
@@ -16,10 +19,10 @@ public class CoffeeOrderDao {
      }
 
      public CoffeeOrder save(CoffeeOrder order) {
-         int i = coffeeOrderMapper.save(order);
-         if (i <= 0) {
-             throw new RuntimeException("Coffee Order save failed, order: " + order);
-         }
+         coffeeOrderMapper.insertOrder(order);
+
+         List<Long> coffeeIds = order.getItems().stream().map(Coffee::getId).collect(Collectors.toList());
+         coffeeOrderMapper.insertOrderCoffee(order.getId(), coffeeIds);
 
          return order;
      }

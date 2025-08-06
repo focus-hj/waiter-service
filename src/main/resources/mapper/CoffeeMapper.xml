@@ -8,8 +8,8 @@
         <id column="id" property="id" />              <!-- 继承自BaseEntity -->
         <result column="name" property="name" />       <!-- 映射name字段 -->
         <result column="price" property="price" />      <!-- 映射price字段 -->
-        <result column="create_time" property="createTime" />     <!-- 映射price字段 -->
-        <result column="update_time" property="updateTime" />     <!-- 映射price字段 -->
+        <result column="create_time" property="createTime" />     <!-- 映射create_time字段 -->
+        <result column="update_time" property="updateTime" />     <!-- 映射update_time字段 -->
     </resultMap>
 
     <!-- 可复用SQL列名集合 -->
